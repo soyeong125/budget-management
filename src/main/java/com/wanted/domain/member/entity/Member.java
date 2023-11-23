@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static com.wanted.domain.member.constants.MemberConstant.ACCOUNT_MAX_LENGTH;
+import static com.wanted.domain.member.constants.MemberConstant.PASSWORD_MAX_LENGTH;
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 /**
@@ -17,9 +20,6 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Table(name = "member")
 public class Member extends BaseTimeEntity {
-
-    private static final int ACCOUNT_MAX_LENGTH = 20;
-    private static final int PASSWORD_MAX_LENGTH = 256;
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -32,10 +32,15 @@ public class Member extends BaseTimeEntity {
     @Column(name = "password", nullable = false, length = PASSWORD_MAX_LENGTH)
     private String password;
 
+    @Enumerated(STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
+
     @Builder
-    public Member(Long id, String account, String password) {
+    public Member(Long id, String account, String password, Role role) {
         this.id = id;
         this.account = account;
         this.password = password;
+        this.role = role;
     }
 }
