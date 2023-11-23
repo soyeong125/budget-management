@@ -31,8 +31,10 @@ public class AuthController {
             @Valid @RequestBody MemberSignUpReqDto reqDto){
 
         reqDto.validPasswordConfirm(); // 비밀번호 확인 검증
+
         Long memberId = authService.signUp(reqDto);
-        return ResponseEntity.status(CREATED).body(ResponseApi.toSuccessForm(memberId));
+        return ResponseEntity.status(CREATED)
+                .body(ResponseApi.toSuccessForm(memberId));
     }
 
     /**
