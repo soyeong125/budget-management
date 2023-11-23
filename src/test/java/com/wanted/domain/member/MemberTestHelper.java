@@ -11,7 +11,7 @@ public class MemberTestHelper {
     public static Member createMememberWithId(){
         return Member.builder()
                 .id(1L)
-                .account("test")
+                .account("test1234")
                 .password("test1234*")
                 .role(Role.USER)
                 .build();
