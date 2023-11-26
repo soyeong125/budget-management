@@ -1,8 +1,11 @@
 package com.wanted.domain.auth.api;
 
 import com.wanted.domain.auth.application.AuthService;
+import com.wanted.domain.member.dto.request.MemberLoginReqDto;
 import com.wanted.domain.member.dto.request.MemberSignUpReqDto;
 import com.wanted.global.format.response.ResponseApi;
+import com.wanted.global.security.data.TokenDto;
+import com.wanted.global.security.data.TokenReqDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +55,48 @@ public class AuthController {
                 .body(ResponseApi.toSuccessForm(""));
     }
 
+    /**
+     * 로그인 및 토큰 발급
+     *
+     * @param reqDto 로그인 입력 데이터
+     * @return 200, JWT 토큰
+     */
+    @PostMapping("/login")
+    public ResponseEntity<ResponseApi> login(
+            @RequestBody MemberLoginReqDto reqDto
+    ) {
+        TokenDto jwtToken = authService.login(reqDto);
 
+        return ResponseEntity.ok(ResponseApi.toSuccessForm(jwtToken));
+    }
 
+    /**
+     * 토큰 재발급
+     *
+     * @param reqDto 토큰 정보 dto
+     * @return 200, 재발급 된 JWT 토큰
+     */
+    @PostMapping("/reissue")
+    public ResponseEntity<ResponseApi> reissue(
+            @RequestBody TokenReqDto reqDto
+    ) {
+        TokenDto jwtToken = authService.reissue(reqDto);
+
+        return ResponseEntity.ok(ResponseApi.toSuccessForm(jwtToken));
+    }
+
+    /**
+     * 로그아웃 및 토큰 삭제
+     *
+     * @param reqDto 토큰 정보
+     * @return 200, 토큰 삭제
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseApi> logout(
+            @RequestBody TokenReqDto reqDto
+    ) {
+        TokenDto jwtToken = authService.reissue(reqDto);
+
+        return ResponseEntity.ok(ResponseApi.toSuccessForm(null));
+    }
 }
