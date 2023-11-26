@@ -40,10 +40,6 @@ public abstract class AbstractRestDocsTests {
                 .alwaysDo(MockMvcResultHandlers.print())
                 .alwaysDo(restDocs)
                 .addFilters(new CharacterEncodingFilter("UTF-8", true))
-                .apply(SecurityMockMvcConfigurers.springSecurity()) // 스프링 시큐리티 설정 적용
-                .defaultRequest(post("/**").with(csrf()))
-                .defaultRequest(patch("/**").with(csrf()))
-                .defaultRequest(delete("/**").with(csrf()))
                 .build();
     }
 }
