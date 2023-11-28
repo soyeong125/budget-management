@@ -24,8 +24,10 @@ public enum ErrorCode {
     MEMBER_LOGOUT("로그아웃 된 사용자입니다.", HttpStatus.BAD_REQUEST),
     REFRESH_TOKEN_BAD_REQUEST("Refresh Token 이 유효하지 않습니다.", HttpStatus.BAD_REQUEST),
     REFRESH_TOKEN_MISMATCH("Refresh Token 이 알맞지 않습니다.", HttpStatus.BAD_REQUEST),
-    ACCESS_TOKEN_BAD_REQUEST("Access Token 이 알맞지 않습니다.", HttpStatus.BAD_REQUEST)
+    ACCESS_TOKEN_BAD_REQUEST("Access Token 이 알맞지 않습니다.", HttpStatus.BAD_REQUEST),
 
+    // 예산 카테고리
+    BUDGET_CATEGORY_NOT_FOUND("존재하지 않는 예산 카테고리입니다.", HttpStatus.BAD_REQUEST),
     ;
 
     //오류 메시지
