@@ -24,7 +24,7 @@ public class CostCategory {
 
     // 카테고리 이름
     @Enumerated(EnumType.STRING)
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private CategoryName name;
 
     @Builder
