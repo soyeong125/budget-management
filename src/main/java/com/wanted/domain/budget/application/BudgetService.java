@@ -41,9 +41,7 @@ public class BudgetService {
         Member member = findMemberById(reqDto.getMemberId());
 
         // 요청 dto로부터 예산 카테고리를 조회한다.
-        CostCategory category = costCategoryRepository.findByName(reqDto.getCategoryName()).orElseThrow(
-                () -> new BusinessException(reqDto.getCategoryName(), "categoryName", ErrorCode.BUDGET_CATEGORY_NOT_FOUND)
-        );
+        CostCategory category = findBudgetByName(reqDto.getCategoryName());
 
         Budget budget = Budget.builder()
                 .member(member)
@@ -87,7 +85,6 @@ public class BudgetService {
     }
 
     //TODO
-
     /**
      * 기존 사용자들이 설정한 예산 비율의 평균 계산
      *
@@ -98,6 +95,73 @@ public class BudgetService {
         Map<CategoryName, Double> averageRates = new HashMap<>();
         // 데이터베이스 조회 및 평균 계산 로직 구현...
         return averageRates;
+    }
+
+    /**
+     * 예산 수정
+     *
+     * @param budgetId 수정할 예산 아이디
+     * @param reqDto    수정 데이터 정보
+     * @return 수정된 예산 아이디
+     */
+    @Transactional
+    public Long updateDeposit(Long budgetId, BudgetCreateReqDto reqDto) {
+
+        // 요청 dto로부터 사용자를 조회한다.
+        Member member = findMemberById(reqDto.getMemberId());
+
+        // 권한 확인
+        validUserAccessDeposit(member, budgetId);
+
+        // 해당 예산 찾기
+        Budget budget = getBudgetById(budgetId);
+
+        // 해당 카테고리 찾기
+        CostCategory foundCategory =  findBudgetByName(reqDto.getCategoryName());
+
+        // 수정
+        budget.update(reqDto, foundCategory);
+
+        return budget.getId();
+    }
+
+    /**
+     * 회원이 해당 예산을 바꿀 수 있는 권한이 있는지 확인. 없으면 예외
+     *
+     * @param member    회원
+     * @param budgetId  예산 id
+     */
+    private void validUserAccessDeposit(Member member, Long budgetId) {
+        boolean isBudgetMatchMember = member.getBudgets().stream()
+                .anyMatch(deposit -> deposit.getId().equals(budgetId));
+
+        if (!isBudgetMatchMember) {
+            throw new BusinessException(budgetId, "budgetId", ErrorCode.ACCESS_DENIED_EXCEPTION);
+        }
+    }
+
+    /**
+     * 아이디로 예산 찾기. 없으면 예외
+     *
+     * @param budgetId 찾을 id
+     * @return 찾은 예산
+     */
+    private Budget getBudgetById(Long budgetId) {
+        return budgetRepository.findById(budgetId).orElseThrow(
+                () -> new BusinessException(budgetId, "depositId", ErrorCode.BUDGET_NOT_FOUND)
+        );
+    }
+
+    /**
+     * Id로 카테고리 찾기
+     *
+     * @param budgetName 찾을 예산명
+     * @return 카테고리명
+     */
+    private CostCategory findBudgetByName(String budgetName) {
+        return costCategoryRepository.findByName(budgetName).orElseThrow(
+                () -> new BusinessException(budgetName, "categoryName", ErrorCode.BUDGET_CATEGORY_NOT_FOUND)
+        );
     }
 
 

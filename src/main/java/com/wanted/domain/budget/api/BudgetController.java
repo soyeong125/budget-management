@@ -7,6 +7,7 @@ import com.wanted.domain.budget.dto.response.BudgetRecommendResDto;
 import com.wanted.global.format.response.ResponseApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,4 +46,24 @@ public class BudgetController {
 
         return ResponseEntity.ok(ResponseApi.toSuccessForm(resDto));
     }
+
+
+    /**
+     * 예산 수정
+     *
+     * @param depositId 수정할 예산 아이디
+     * @param reqDto    수정 데이터 정보
+     * @return 201, 수정된 예산 아이디
+     */
+    @PutMapping("/{depositId}")
+    public ResponseEntity<ResponseApi> updateDeposit(
+            @PathVariable(name = "depositId") Long depositId,
+            @Valid @RequestBody BudgetCreateReqDto reqDto
+    ) {
+        Long updatedDeposit = budgetService.updateDeposit(depositId, reqDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ResponseApi.toSuccessForm(updatedDeposit));
+    }
+
 }
