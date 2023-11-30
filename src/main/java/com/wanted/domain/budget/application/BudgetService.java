@@ -153,6 +153,18 @@ public class BudgetService {
     }
 
     /**
+     * 예산 삭제
+     *
+     * @param budgetId 삭제할 예산
+     */
+    @Transactional
+    public void deleteBudget(Long budgetId) {
+        // 해당 예산 찾기
+        Budget budget = getBudgetById(budgetId);
+        budgetRepository.delete(budget);
+    }
+
+    /**
      * Id로 카테고리 찾기
      *
      * @param budgetName 찾을 예산명

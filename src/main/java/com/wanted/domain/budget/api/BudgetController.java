@@ -65,4 +65,20 @@ public class BudgetController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseApi.toSuccessForm(updatedDeposit));
     }
+
+    /**
+     * 예산 삭제
+     *
+     * @param budgetId 삭제할 예산
+     * @return 204
+     */
+    @DeleteMapping("/{depositId}")
+    public ResponseEntity<ResponseApi> deleteBudget(
+            @PathVariable Long budgetId
+    ) {
+        budgetService.deleteBudget(budgetId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(ResponseApi.toSuccessForm(""));
+    }
 }
