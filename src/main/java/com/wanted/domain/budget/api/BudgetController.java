@@ -51,19 +51,18 @@ public class BudgetController {
     /**
      * 예산 수정
      *
-     * @param depositId 수정할 예산 아이디
+     * @param budgetId 수정할 예산 아이디
      * @param reqDto    수정 데이터 정보
      * @return 201, 수정된 예산 아이디
      */
     @PutMapping("/{depositId}")
     public ResponseEntity<ResponseApi> updateDeposit(
-            @PathVariable(name = "depositId") Long depositId,
+            @PathVariable(name = "budgetId") Long budgetId,
             @Valid @RequestBody BudgetCreateReqDto reqDto
     ) {
-        Long updatedDeposit = budgetService.updateDeposit(depositId, reqDto);
+        Long updatedDeposit = budgetService.updateDeposit(budgetId, reqDto);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseApi.toSuccessForm(updatedDeposit));
     }
-
 }
