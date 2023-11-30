@@ -156,4 +156,28 @@ class BudgetControllerTest extends AbstractRestDocsTests {
                     .andExpect(status().isBadRequest());
         }
     }
+
+    @Nested
+    @DisplayName("예산 삭제 관련 컨트롤러 테스트")
+    class deleteBudget {
+
+        @Test
+        @DisplayName("정상적으로 예산 삭제에 성공한다.")
+        void 정상적으로_예산_삭제에_성공한다_204() throws Exception {
+            mockMvc.perform(delete(BUDGET_URL + "/1"))
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        @DisplayName("회원이 작성하지 않은 예산을 수정하면, 실패한다.")
+        void 회원이_작성하지_않은_예산을_수정하면_실패한다_403() throws Exception {
+
+            doThrow(new BusinessException(43, "budgetId", ErrorCode.ACCESS_DENIED_EXCEPTION))
+                    .when(budgetService)
+                    .deleteBudget(any());
+
+            mockMvc.perform(delete(BUDGET_URL + "/1"))
+                    .andExpect(status().isForbidden());
+        }
+    }
 }
