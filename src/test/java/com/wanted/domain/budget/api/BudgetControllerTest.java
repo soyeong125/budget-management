@@ -89,5 +89,23 @@ class BudgetControllerTest extends AbstractRestDocsTests {
                             .contentType(APPLICATION_JSON).content(mapper.writeValueAsString(reqDto)))
                     .andExpect(status().isBadRequest());
         }
+
+        @Test
+        @DisplayName("카테고리를 입력하지 않으면 실패한다")
+        void 카테고리를_입력하지_않으면_실패한다() throws Exception {
+            BudgetCreateReqDto reqDto = BudgetCreateReqDto.builder()
+                    .memberId(budget.getId())
+                    .categoryName("")
+                    .cost(budget.getCost())
+                    .build();
+
+            given(budgetService.createBudget(any())).willThrow(
+                    new BusinessException(reqDto.getCategoryName(), "categoryName", BUDGET_CATEGORY_NOT_FOUND)
+            );
+
+            mockMvc.perform(post(BUDGET_URL)
+                            .contentType(APPLICATION_JSON).content(mapper.writeValueAsString(reqDto)))
+                    .andExpect(status().isBadRequest());
+        }
     }
 }
