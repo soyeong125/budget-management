@@ -7,6 +7,7 @@ import com.wanted.domain.budget.dto.response.BudgetRecommendResDto;
 import com.wanted.global.format.response.ResponseApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,5 +45,40 @@ public class BudgetController {
         BudgetRecommendResDto resDto = budgetService.createBudgetRecommendation(reqDto);
 
         return ResponseEntity.ok(ResponseApi.toSuccessForm(resDto));
+    }
+
+
+    /**
+     * 예산 수정
+     *
+     * @param budgetId 수정할 예산 아이디
+     * @param reqDto    수정 데이터 정보
+     * @return 201, 수정된 예산 아이디
+     */
+    @PutMapping("/{depositId}")
+    public ResponseEntity<ResponseApi> updateDeposit(
+            @PathVariable(name = "budgetId") Long budgetId,
+            @Valid @RequestBody BudgetCreateReqDto reqDto
+    ) {
+        Long updatedDeposit = budgetService.updateDeposit(budgetId, reqDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ResponseApi.toSuccessForm(updatedDeposit));
+    }
+
+    /**
+     * 예산 삭제
+     *
+     * @param budgetId 삭제할 예산
+     * @return 204
+     */
+    @DeleteMapping("/{depositId}")
+    public ResponseEntity<ResponseApi> deleteBudget(
+            @PathVariable Long budgetId
+    ) {
+        budgetService.deleteBudget(budgetId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(ResponseApi.toSuccessForm(""));
     }
 }

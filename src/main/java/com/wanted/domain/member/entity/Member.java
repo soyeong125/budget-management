@@ -41,11 +41,16 @@ public class Member extends BaseTimeEntity {
     @Column(name = "role", nullable = false)
     private Role role;
 
+    // 예산 (1:N)
+    @OneToMany(fetch = LAZY, mappedBy = "member")
+    private List<Budget> budgets = new ArrayList<>();
+
     @Builder
-    public Member(Long id, String account, String password, Role role) {
+    public Member(Long id, String account, String password, Role role, List<Budget> budgets) {
         this.id = id;
         this.account = account;
         this.password = password;
         this.role = role;
+        this.budgets = budgets;
     }
 }

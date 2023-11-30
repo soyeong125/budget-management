@@ -1,5 +1,6 @@
 package com.wanted.domain.budget.entity;
 
+import com.wanted.domain.budget.dto.request.BudgetCreateReqDto;
 import com.wanted.domain.category.cost.entity.CostCategory;
 import com.wanted.domain.member.entity.Member;
 import jakarta.persistence.Column;
@@ -52,5 +53,16 @@ public class Budget {
         this.category = category;
         this.member = member;
         this.cost = cost;
+    }
+
+    /**
+     * 예산 수정
+     *
+     * @param reqDto   수정할 데이터 정보
+     * @param category 수정할 카테고리
+     */
+    public void update(BudgetCreateReqDto reqDto, CostCategory category) {
+        this.cost = reqDto.getCost();
+        this.category = category;
     }
 }
