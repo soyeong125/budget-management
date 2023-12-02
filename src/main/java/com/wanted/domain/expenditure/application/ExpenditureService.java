@@ -1,5 +1,6 @@
 package com.wanted.domain.expenditure.application;
 
+import com.wanted.domain.budget.dao.BudgetRepository;
 import com.wanted.domain.category.cost.constants.CategoryName;
 import com.wanted.domain.category.cost.dao.CostCategoryRepository;
 import com.wanted.domain.category.cost.entity.CostCategory;
@@ -28,9 +29,13 @@ import static com.wanted.global.error.ErrorCode.MEMBER_NOT_FOUND;
 @Transactional(readOnly = true)
 public class ExpenditureService {
 
+    // 예산을 초과했더라도 추천받는 최소 금액
+    private static final int MINIMUM_EXPENDITURE_AMOUNT = 5000;
+
     private final MemberRepository memberRepository;
     private final ExpenditureRepository expenditureRepository;
     private final CostCategoryRepository categoryRepository;
+    private final BudgetRepository budgetRepository;
 
     /**
      * 지출 작성
@@ -167,5 +172,4 @@ public class ExpenditureService {
 
         return "";
     }
-
 }
