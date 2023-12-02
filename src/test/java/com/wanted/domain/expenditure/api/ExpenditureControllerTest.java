@@ -164,4 +164,33 @@ class ExpenditureControllerTest extends AbstractRestDocsTests {
                     .andExpect(status().isBadRequest());
         }
     }
+
+    @Nested
+    @DisplayName("지출 삭제관련 컨트롤러 테스트")
+    class deleteExpenditure {
+        @Test
+        @DisplayName("지출 삭제에 성공한다.")
+        void 지출_삭제에_성공한다() throws Exception {
+            given(expenditureService.getExpenditure(any())).willReturn(new ExpenditureDetailResponse(expenditure));
+            given(expenditureService.deleteExpenditure(any())).willReturn(expenditure.getId());
+
+            mockMvc.perform(delete(EXPENDITURE_URL + "/" + expenditure.getId())
+                            .contentType(APPLICATION_JSON)
+                    )
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 지출을 삭제하면 실패한다")
+        void 존재하지_않는_지출을_삭제하면_실패한다() throws Exception {
+            int wrongExpenditureId = 100;
+            given(expenditureService.getExpenditure(any())).willReturn(new ExpenditureDetailResponse(expenditure));
+            given(expenditureService.deleteExpenditure(any())).willThrow(new BusinessException(wrongExpenditureId, "expenditureId", ErrorCode.EXPENDITURE_NOT_FOUND));
+
+            mockMvc.perform(delete(EXPENDITURE_URL + "/" + wrongExpenditureId)
+                            .contentType(APPLICATION_JSON)
+                    )
+                    .andExpect(status().is4xxClientError());
+        }
+    }
 }
