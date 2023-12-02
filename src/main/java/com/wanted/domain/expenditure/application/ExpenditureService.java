@@ -89,4 +89,21 @@ public class ExpenditureService {
 
         return new ExpenditureDetailResponse(expenditure);
     }
+
+    /**
+     * 지출을 삭제한다.
+     *
+     * @param expenditureId 삭제할 지출의 ID
+     * @return 삭제된 지출의 ID
+     */
+    public Long deleteExpenditure(Long expenditureId) {
+
+        Expenditure expenditure = expenditureRepository.findById(expenditureId).orElseThrow(
+                () -> new BusinessException(expenditureId, "expenditureId", ErrorCode.EXPENDITURE_NOT_FOUND)
+        );
+
+        expenditureRepository.delete(expenditure);
+
+        return expenditureId;
+    }
 }

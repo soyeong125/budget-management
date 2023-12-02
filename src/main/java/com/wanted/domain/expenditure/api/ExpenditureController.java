@@ -38,14 +38,14 @@ public class ExpenditureController {
      * 지출을 수정한다.
      *
      * @param expenditureId 수정할 지출의 ID
-     * @param reqDto 지출 수정 요청 파라미터
+     * @param reqDto        지출 수정 요청 파라미터
      * @return 수정된 지출의 ID
      */
     @PutMapping("/{expenditureId}")
     public ResponseEntity<ResponseApi> updateExpenditure(
             @PathVariable Long expenditureId,
             @RequestBody @Validated ExpenditureUpdateReqDto reqDto
-            ) {
+    ) {
         return ResponseEntity.ok(ResponseApi.toSuccessForm(expenditureService.updateExpenditure(expenditureId, reqDto)));
     }
 
@@ -60,5 +60,18 @@ public class ExpenditureController {
             @PathVariable Long expenditureId
     ) {
         return ResponseEntity.ok(ResponseApi.toSuccessForm(expenditureService.getExpenditure(expenditureId)));
+    }
+
+    /**
+     * 지출을 삭제한다.
+     *
+     * @param expenditureId 삭제할 지출의 ID
+     * @return 삭제된 지출의 ID
+     */
+    @DeleteMapping("/{expenditureId}")
+    public ResponseEntity<ResponseApi> deleteExpenditure(
+            @PathVariable Long expenditureId
+    ) {
+        return ResponseEntity.ok(ResponseApi.toSuccessForm(expenditureService.deleteExpenditure(expenditureId)));
     }
 }
