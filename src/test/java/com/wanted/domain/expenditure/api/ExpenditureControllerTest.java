@@ -6,6 +6,7 @@ import com.wanted.domain.expenditure.ExpenditureTestHelper;
 import com.wanted.domain.expenditure.application.ExpenditureService;
 import com.wanted.domain.expenditure.dto.request.ExpenditureCreateReqDto;
 import com.wanted.domain.expenditure.dto.request.ExpenditureUpdateReqDto;
+import com.wanted.domain.expenditure.dto.response.ExpenditureDetailResponse;
 import com.wanted.domain.expenditure.entity.Expenditure;
 import com.wanted.domain.member.MemberTestHelper;
 import com.wanted.domain.member.entity.Member;
@@ -26,8 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ExpenditureController.class)
@@ -132,6 +132,34 @@ class ExpenditureControllerTest extends AbstractRestDocsTests {
             mockMvc.perform(put(EXPENDITURE_URL + "/" + expenditure.getId())
                             .contentType(APPLICATION_JSON)
                             .content(mapper.writeValueAsString(reqDto))
+                    )
+                    .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    @DisplayName("지출 상세 조회 관련 컨트롤러 테스트")
+    class getExpenditure {
+        @Test
+        @DisplayName("지출 상세 조회에 성공한다,")
+        void 지출_상세_조회에_성공한다() throws Exception {
+            ExpenditureDetailResponse expenditureDetail = new ExpenditureDetailResponse(expenditure);
+            given(expenditureService.getExpenditure(any())).willReturn(expenditureDetail);
+
+            mockMvc.perform(get(EXPENDITURE_URL + "/" + expenditure.getId())
+                            .contentType(APPLICATION_JSON)
+                    )
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 지출을 조회하면 실패한다")
+        void 존재하지_않는_지출을_조회하면_실패한다() throws Exception {
+            int wrongExpenditureId = 100;
+            given(expenditureService.getExpenditure(any())).willThrow(new BusinessException(wrongExpenditureId, "expenditureId", ErrorCode.EXPENDITURE_NOT_FOUND));
+
+            mockMvc.perform(get(EXPENDITURE_URL + "/" + wrongExpenditureId)
+                            .contentType(APPLICATION_JSON)
                     )
                     .andExpect(status().isBadRequest());
         }
