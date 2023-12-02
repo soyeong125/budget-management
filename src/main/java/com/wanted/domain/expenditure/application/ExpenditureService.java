@@ -7,6 +7,7 @@ import com.wanted.domain.expenditure.dao.ExpenditureRepository;
 import com.wanted.domain.expenditure.dto.request.ExpenditureCreateReqDto;
 import com.wanted.domain.expenditure.dto.request.ExpenditureUpdateReqDto;
 import com.wanted.domain.expenditure.dto.response.ExpenditureDetailResponse;
+import com.wanted.domain.expenditure.dto.response.ExpenditureRecommendResDto;
 import com.wanted.domain.expenditure.entity.Expenditure;
 import com.wanted.domain.member.dao.MemberRepository;
 import com.wanted.domain.member.entity.Member;
@@ -15,6 +16,9 @@ import com.wanted.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.wanted.global.error.ErrorCode.BUDGET_CATEGORY_NOT_FOUND;
 import static com.wanted.global.error.ErrorCode.MEMBER_NOT_FOUND;
@@ -106,4 +110,62 @@ public class ExpenditureService {
 
         return expenditureId;
     }
+
+    /**
+     * 오늘 사용 가능한 지출 추천 금액을 반환한다.
+     *
+     * @param account 사용자 계정
+     * @return 추천 지출 금액
+     */
+    public ExpenditureRecommendResDto createExpenditureRecommendation(String account) {
+
+        // 요청한 사용자를 조회한다.
+        Member member = memberRepository.findByAccount(account).orElseThrow(
+                () -> new BusinessException(account, "account", MEMBER_NOT_FOUND)
+        );
+
+        // 현재 남아있는 예산을 이번 달의 남은 일수로 나누어 오늘 지출 가능한 총액을 구한다.
+        Integer todayBudget = calculateTodayBudget(member);
+
+        // 지출 추천 메시지를 생성한다.
+        String expenditureMessage = createExpenditureMessage(todayBudget);
+
+        return ExpenditureRecommendResDto.builder()
+                .totalAmount(todayBudget)
+                .expenditureMessage(expenditureMessage)
+                .build();
+    }
+
+    /**
+     * TODO
+     * 남은 예산을 이번 달의 남은 일수로 나누어 오늘 사용 가능한 지출 총액을 계산한다.
+     *
+     * @param member 사용자
+     * @return 오늘 사용 가능한 지출 총액
+     */
+    private Integer calculateTodayBudget(Member member) {
+        //사용자의 전체 예산 구하기
+        //이번달 사용한 금액 계산
+        //예산 - 사용한 금액 계산
+        //양수면, 남은금액 / 남은 일수 -> 사용가능한 지출 총액 계산
+
+        return 0;
+    }
+
+    /**
+     * TODO
+     * 지출 추천 메시지를 생성한다.
+     *
+     * @param remaining 남은 금액
+     * @return 지출 추천 메시지
+     */
+    private String createExpenditureMessage(Integer remaining) {
+        //남은 금액이 1.0 이상이면 훌륭함
+        //남은 금액이 1.0 이면 잘하고 있음
+        //남은 금액이 1.0 이하면 나쁘지 않은 편입니다.
+        //남은 금액이 음수이면, 초과했습니다.
+
+        return "";
+    }
+
 }

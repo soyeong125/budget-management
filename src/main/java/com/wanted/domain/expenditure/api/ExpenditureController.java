@@ -3,6 +3,7 @@ package com.wanted.domain.expenditure.api;
 import com.wanted.domain.expenditure.application.ExpenditureService;
 import com.wanted.domain.expenditure.dto.request.ExpenditureCreateReqDto;
 import com.wanted.domain.expenditure.dto.request.ExpenditureUpdateReqDto;
+import com.wanted.domain.expenditure.dto.response.ExpenditureRecommendResDto;
 import com.wanted.global.format.response.ResponseApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -73,5 +74,22 @@ public class ExpenditureController {
             @PathVariable Long expenditureId
     ) {
         return ResponseEntity.ok(ResponseApi.toSuccessForm(expenditureService.deleteExpenditure(expenditureId)));
+    }
+
+    /**
+     * 오늘 사용 가능한 지출 추천 금액을 반환한다.
+     *
+     * @param account 사용자 계정
+     * @return 추천 지출 금액
+     */
+    @GetMapping("/recommendation")
+    public ResponseEntity<ResponseApi> createExpenditureRecommendation(
+            @RequestHeader String account
+    ) {
+        // 지출 추천 정보를 생성한다.
+        ExpenditureRecommendResDto expenditureRecommendation = expenditureService.createExpenditureRecommendation(
+                account);
+
+        return ResponseEntity.ok(ResponseApi.toSuccessForm(expenditureRecommendation));
     }
 }
