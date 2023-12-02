@@ -4,6 +4,7 @@ import com.wanted.domain.expenditure.application.ExpenditureService;
 import com.wanted.domain.expenditure.dto.request.ExpenditureCreateReqDto;
 import com.wanted.domain.expenditure.dto.request.ExpenditureUpdateReqDto;
 import com.wanted.domain.expenditure.dto.response.ExpenditureRecommendResDto;
+import com.wanted.domain.expenditure.dto.response.ExpenditureTodayResDto;
 import com.wanted.global.format.response.ResponseApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -91,5 +92,22 @@ public class ExpenditureController {
                 account);
 
         return ResponseEntity.ok(ResponseApi.toSuccessForm(expenditureRecommendation));
+    }
+
+    /**
+     * 오늘 지출 금액 안내 정보를 생성한다.
+     *
+     * @param account 사용자 계정
+     * @return 오늘 지출 정보
+     */
+    @GetMapping("/today")
+    public ResponseEntity<ResponseApi> createExpenditureToday(
+            @RequestHeader String account
+    ) {
+
+        ExpenditureTodayResDto expenditureToday = expenditureService.createExpenditureToday(
+                account);
+
+        return ResponseEntity.ok(ResponseApi.toSuccessForm(expenditureToday));
     }
 }
