@@ -1,6 +1,7 @@
 package com.wanted.domain.expenditure.application;
 
 import com.wanted.domain.budget.dao.BudgetRepository;
+import com.wanted.domain.budget.entity.Budget;
 import com.wanted.domain.category.cost.constants.CategoryName;
 import com.wanted.domain.category.cost.dao.CostCategoryRepository;
 import com.wanted.domain.category.cost.entity.CostCategory;
@@ -9,6 +10,7 @@ import com.wanted.domain.expenditure.dto.request.ExpenditureCreateReqDto;
 import com.wanted.domain.expenditure.dto.request.ExpenditureUpdateReqDto;
 import com.wanted.domain.expenditure.dto.response.ExpenditureDetailResponse;
 import com.wanted.domain.expenditure.dto.response.ExpenditureRecommendResDto;
+import com.wanted.domain.expenditure.dto.response.ExpenditureTodayResDto;
 import com.wanted.domain.expenditure.entity.Expenditure;
 import com.wanted.domain.member.dao.MemberRepository;
 import com.wanted.domain.member.entity.Member;
@@ -18,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -171,5 +175,123 @@ public class ExpenditureService {
         //남은 금액이 음수이면, 초과했습니다.
 
         return "";
+    }
+
+    /**
+     * 오늘 지출 정보를 생성한다.
+     *
+     * @param account 사용자 계정명
+     * @return 오늘 지출 정보
+     */
+    public ExpenditureTodayResDto createExpenditureToday(String account) {
+
+        // 요청한 사용자를 조회한다.
+        Member member = memberRepository.findByAccount(account).orElseThrow(
+                () -> new BusinessException(account, "account", MEMBER_NOT_FOUND)
+        );
+
+        // 사용자의 지출 목록을 조회한다.
+        List<Expenditure> expenditures = expenditureRepository.findAllByMemberId(member.getId());
+
+        // 지출 총 합계를 계산한다.
+        Integer totalAmount = calculateTotalAmount(expenditures);
+
+        // 카테고리별 지출 합계를 계산한다.
+        Map<CategoryName, Integer> amountPerCategory = calculateAmountPerCategory(expenditures);
+
+        // 사용자의 카테고리별 예산 비율을 계산한다.
+        Map<CategoryName, Double> categoryRates = calculateCategoryRates(member);
+
+        // 현재 남아있는 예산을 이번 달의 남은 일수로 나누어 적절 지출 가능한 총액을 구한다.
+        Integer properTotalAmount = calculateTodayBudget(member);
+
+        // 적절 지출 총액을 예산 비율만큼 나누어 카테고리 별 적절 지출 금액을 만든다.
+        Map<CategoryName, Integer> properAmountPerCategory = calculateAmountPerCategoryByRates(categoryRates,
+                properTotalAmount);
+
+        // 위험도를 계산한다.
+        Map<CategoryName, Integer> dangerRates = calculateDangerRates(amountPerCategory, properAmountPerCategory);
+
+        return ExpenditureTodayResDto.builder()
+                .totalAmount(totalAmount)
+                .amountPerCategory(amountPerCategory)
+                .properTotalAmount(properTotalAmount)
+                .properAmountPerCategory(properAmountPerCategory)
+                .dangerRates(dangerRates)
+                .build();
+    }
+
+    /**
+     * 지출 총 합계를 계산한다.
+     *
+     * @param expenditures 지출 목록
+     * @return 지출 총 합계
+     */
+    private Integer calculateTotalAmount(List<Expenditure> expenditures) {
+        return expenditures.stream()
+                .mapToInt(Expenditure::getCost)
+                .sum();
+    }
+
+    /**
+     * 카테고리별 지출 합계를 계산한다.
+     *
+     * @param expenditures 지출 목록
+     * @return 카테고리별 지출 합계
+     */
+    private Map<CategoryName, Integer> calculateAmountPerCategory(List<Expenditure> expenditures) {
+        return expenditures.stream()
+                .collect(Collectors.groupingBy(
+                        expenditure -> expenditure.getCategory().getName(),
+                        Collectors.summingInt(Expenditure::getCost)
+                ));
+    }
+
+    /**
+     * 사용자의 카테고리별 예산 비율을 계산한다.
+     *
+     * @param member 사용자
+     * @return 카테고리별 예산 비율
+     */
+    private Map<CategoryName, Double> calculateCategoryRates(Member member) {
+        //TODO
+        //사용자의 카테고리별 예산 비율 불러오기
+        int totalBudgetAmount = 0; //사용자의 전체 예산 불러오기
+        List<Budget> budgets = budgetRepository.findAllByMemberId(member.getId());
+
+        return budgets.stream()
+                .collect(Collectors.toMap(
+                        budget -> budget.getCategory().getName(),
+                        budget -> (double) budget.getCost() / totalBudgetAmount
+                ));
+    }
+
+    /**
+     * TODO
+     * 카테고리별 예산 비율을 기준으로 예산 총액을 나누어 카테고리별 지출액을 계산한다.
+     *
+     * @param categoryRates 카테고리별 예산 비율
+     * @param budget 예산 총액
+     * @return 카테고리별 지출액
+     */
+    private Map<CategoryName, Integer> calculateAmountPerCategoryByRates(Map<CategoryName, Double> categoryRates,
+                                                                         int budget) {
+        return new HashMap<>();
+    }
+
+    /**
+     * 카테고리별 적정 금액, 지출금액의 차이인 위험도를 계산한다.
+     *
+     * @param amountPerCategory 카테고리별 지출 금액
+     * @param properAmountPerCategory 카테고리별 적정 금액
+     * @return 카테고리별 위험도 (퍼센티지)
+     */
+    private Map<CategoryName, Integer> calculateDangerRates(Map<CategoryName, Integer> amountPerCategory,
+                                                            Map<CategoryName, Integer> properAmountPerCategory) {
+        return amountPerCategory.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> (int) ((double) entry.getValue() / properAmountPerCategory.get(entry.getKey())) * 100
+                ));
     }
 }
