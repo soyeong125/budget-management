@@ -5,6 +5,7 @@ import com.wanted.budgetManagement.config.restdocs.AbstractRestDocsTests;
 import com.wanted.domain.expenditure.ExpenditureTestHelper;
 import com.wanted.domain.expenditure.application.ExpenditureService;
 import com.wanted.domain.expenditure.dto.request.ExpenditureCreateReqDto;
+import com.wanted.domain.expenditure.dto.request.ExpenditureUpdateReqDto;
 import com.wanted.domain.expenditure.entity.Expenditure;
 import com.wanted.domain.member.MemberTestHelper;
 import com.wanted.domain.member.entity.Member;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -25,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ExpenditureController.class)
@@ -91,6 +94,46 @@ class ExpenditureControllerTest extends AbstractRestDocsTests {
                             .content(mapper.writeValueAsString(reqDto)))
                     .andExpect(status().is4xxClientError());
         }
+    }
 
+    @Nested
+    @DisplayName("지출 수정 관련 컨트롤러 테스트")
+    class updateExpenditure {
+        @Test
+        @DisplayName("지출 수정에 성공한다.")
+        void 지출_수정에_성공_한다() throws Exception {
+            ExpenditureUpdateReqDto reqDto = ExpenditureUpdateReqDto.builder()
+                    .memberId(expenditure.getMember().getId())
+                    .amount(expenditure.getCost())
+                    .memo(expenditure.getMemo())
+                    .isExcluded(expenditure.getIsExcluded())
+                    .build();
+
+            given(expenditureService.updateExpenditure(any(), any())).willReturn(expenditure.getId());
+
+            mockMvc.perform(put(EXPENDITURE_URL + "/" + expenditure.getId())
+                            .contentType(APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(reqDto))
+                    )
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("지출 수정에 실패한다.")
+        void 지출_수정에_실패_한다() throws Exception {
+            Integer wrongAmount = -1000;
+            ExpenditureUpdateReqDto reqDto = ExpenditureUpdateReqDto.builder()
+                    .memberId(expenditure.getMember().getId())
+                    .amount(wrongAmount)
+                    .memo(expenditure.getMemo())
+                    .isExcluded(expenditure.getIsExcluded())
+                    .build();
+
+            mockMvc.perform(put(EXPENDITURE_URL + "/" + expenditure.getId())
+                            .contentType(APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(reqDto))
+                    )
+                    .andExpect(status().isBadRequest());
+        }
     }
 }
