@@ -2,6 +2,9 @@ package com.wanted.domain.category.cost.api;
 
 import com.wanted.budgetManagement.config.restdocs.AbstractRestDocsTests;
 import com.wanted.domain.category.cost.constants.CategoryName;
+import com.wanted.domain.member.MemberTestHelper;
+import com.wanted.domain.member.entity.Member;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CostCategoryControllerTest extends AbstractRestDocsTests {
 
     private static final String COST_CATEGORY_URL = "/api/v1/cost-categories";
+
 
     @Nested
     @DisplayName("카테고리 전체 목록 조회")

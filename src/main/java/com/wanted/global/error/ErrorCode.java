@@ -30,6 +30,8 @@ public enum ErrorCode {
     BUDGET_CATEGORY_NOT_FOUND("존재하지 않는 예산 카테고리입니다.", HttpStatus.BAD_REQUEST),
     BUDGET_NOT_FOUND("존재하지 않는 예산입니다.", HttpStatus.BAD_REQUEST),
 
+    // 지출
+    EXPENDITURE_NOT_FOUND("존재하지 않는 지출입니다.", HttpStatus.BAD_REQUEST),
     ;
 
     //오류 메시지
