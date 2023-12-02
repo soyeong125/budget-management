@@ -6,6 +6,7 @@ import com.wanted.domain.category.cost.entity.CostCategory;
 import com.wanted.domain.expenditure.dao.ExpenditureRepository;
 import com.wanted.domain.expenditure.dto.request.ExpenditureCreateReqDto;
 import com.wanted.domain.expenditure.dto.request.ExpenditureUpdateReqDto;
+import com.wanted.domain.expenditure.dto.response.ExpenditureDetailResponse;
 import com.wanted.domain.expenditure.entity.Expenditure;
 import com.wanted.domain.member.dao.MemberRepository;
 import com.wanted.domain.member.entity.Member;
@@ -73,5 +74,19 @@ public class ExpenditureService {
         expenditure.update(reqDto.toEntity());
 
         return expenditure.getId();
+    }
+
+    /**
+     * 지출을 상세 조회한다.
+     *
+     * @param expenditureId 조회할 지출의 ID
+     * @return 지출 상세 조회값
+     */
+    public ExpenditureDetailResponse getExpenditure(Long expenditureId) {
+        Expenditure expenditure = expenditureRepository.findById(expenditureId).orElseThrow(
+                () -> new BusinessException(expenditureId, "expenditureId", ErrorCode.EXPENDITURE_NOT_FOUND)
+        );
+
+        return new ExpenditureDetailResponse(expenditure);
     }
 }

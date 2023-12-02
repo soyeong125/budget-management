@@ -35,7 +35,7 @@ public class ExpenditureController {
     }
 
     /**
-     * 지출 수정
+     * 지출을 수정한다.
      *
      * @param expenditureId 수정할 지출의 ID
      * @param reqDto 지출 수정 요청 파라미터
@@ -47,5 +47,18 @@ public class ExpenditureController {
             @RequestBody @Validated ExpenditureUpdateReqDto reqDto
             ) {
         return ResponseEntity.ok(ResponseApi.toSuccessForm(expenditureService.updateExpenditure(expenditureId, reqDto)));
+    }
+
+    /**
+     * 지출의 상세 내역을 조회한다.
+     *
+     * @param expenditureId 조회할 지출의 ID
+     * @return 지출 상세 정보
+     */
+    @GetMapping("/{expenditureId}")
+    public ResponseEntity<ResponseApi> getExpenditure(
+            @PathVariable Long expenditureId
+    ) {
+        return ResponseEntity.ok(ResponseApi.toSuccessForm(expenditureService.getExpenditure(expenditureId)));
     }
 }
