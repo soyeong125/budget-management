@@ -1,0 +1,96 @@
+package com.wanted.domain.expenditure.api;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wanted.budgetManagement.config.restdocs.AbstractRestDocsTests;
+import com.wanted.domain.expenditure.ExpenditureTestHelper;
+import com.wanted.domain.expenditure.application.ExpenditureService;
+import com.wanted.domain.expenditure.dto.request.ExpenditureCreateReqDto;
+import com.wanted.domain.expenditure.entity.Expenditure;
+import com.wanted.domain.member.MemberTestHelper;
+import com.wanted.domain.member.entity.Member;
+import com.wanted.global.error.BusinessException;
+import com.wanted.global.error.ErrorCode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(controllers = ExpenditureController.class)
+class ExpenditureControllerTest extends AbstractRestDocsTests {
+
+    private final static String EXPENDITURE_URL = "/api/v1/expenditure";
+
+    @MockBean
+    private ExpenditureService expenditureService;
+
+    @Autowired
+    ObjectMapper mapper;
+
+    private Member member;
+    private Expenditure expenditure;
+    @BeforeEach
+    void setUp(){
+
+        member = MemberTestHelper.createMememberWithId();
+        expenditure = ExpenditureTestHelper.createExpenditure();
+    }
+
+    @Nested
+    @DisplayName("지출 생성 관련 컨트롤러 테스트")
+    class writeExpenditure {
+
+        @Test
+        @DisplayName("지출 생성에 성공한다.")
+        void 지출_생성에_성공한다() throws Exception {
+            ExpenditureCreateReqDto reqDto = ExpenditureCreateReqDto.builder()
+                    .memberId(expenditure.getMember().getId())
+                    .categoryName(expenditure.getCategory().getName().name())
+                    .amount(expenditure.getCost())
+                    .memo(expenditure.getMemo())
+                    .isExcluded(expenditure.getIsExcluded())
+                    .build();
+
+            given(expenditureService.createExpenditure(any())).willReturn(1L);
+
+
+            mockMvc.perform(post(EXPENDITURE_URL)
+                            .contentType(APPLICATION_JSON).content(mapper.writeValueAsString(reqDto)))
+                    .andExpect(status().isCreated());
+        }
+
+
+        @Test
+        @DisplayName("카테고리가 없으면, 지출 생성에 실패한다.")
+        void 카테고리가_없으면_지출_작성에_실패한다() throws Exception {
+            ExpenditureCreateReqDto reqDto = ExpenditureCreateReqDto.builder()
+                    .memberId(expenditure.getMember().getId())
+                    .categoryName("none")
+                    .amount(expenditure.getCost())
+                    .memo(expenditure.getMemo())
+                    .isExcluded(expenditure.getIsExcluded())
+                    .build();
+
+            given(expenditureService.createExpenditure(any())).willThrow(
+                    new BusinessException(55L, "categoryId", ErrorCode.BUDGET_CATEGORY_NOT_FOUND)
+            );
+
+            mockMvc.perform(post(EXPENDITURE_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(reqDto)))
+                    .andExpect(status().is4xxClientError());
+        }
+
+    }
+}
