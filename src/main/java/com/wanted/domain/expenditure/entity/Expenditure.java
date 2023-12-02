@@ -70,4 +70,21 @@ public class Expenditure {
         this.isExcluded = isExcluded;
         this.time = time;
     }
+
+    /**
+     * 지출 속성을 수정
+     *
+     * @param expenditure 수정할 지출 내용
+     */
+    public void update(Expenditure expenditure) {
+        if (expenditure.getCost() != null) {
+            this.cost = expenditure.getCost();
+        }
+        if (expenditure.getMemo() != null) {
+            this.memo = expenditure.getMemo();
+        }
+        if (expenditure.getIsExcluded() != null) {
+            this.isExcluded = expenditure.getIsExcluded();
+        }
+    }
 }

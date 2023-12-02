@@ -5,6 +5,7 @@ import com.wanted.domain.category.cost.dao.CostCategoryRepository;
 import com.wanted.domain.category.cost.entity.CostCategory;
 import com.wanted.domain.expenditure.dao.ExpenditureRepository;
 import com.wanted.domain.expenditure.dto.request.ExpenditureCreateReqDto;
+import com.wanted.domain.expenditure.dto.request.ExpenditureUpdateReqDto;
 import com.wanted.domain.expenditure.entity.Expenditure;
 import com.wanted.domain.member.dao.MemberRepository;
 import com.wanted.domain.member.entity.Member;
@@ -56,18 +57,21 @@ public class ExpenditureService {
         return savedExpenditure.getId();
     }
 
-
     /**
-     * Id로 비용 카테고리 찾기
+     * 지출을 수정한다.
      *
-     * @param categoryId 카테고리 id
-     * @return 찾은 카테고리
+     * @param expenditureId 수정할 지출의 ID
+     * @param reqDto 지출 수정 요청 파라미터
+     * @return 수정된 지출의 ID
      */
-    private CostCategory getCategoryById(Long categoryId) {
-        CostCategory category = categoryRepository.findById(categoryId).orElseThrow(
-                () -> new BusinessException(categoryId, "categoryId", BUDGET_CATEGORY_NOT_FOUND)
+    public Long updateExpenditure(Long expenditureId, ExpenditureUpdateReqDto reqDto) {
+
+        Expenditure expenditure = expenditureRepository.findById(expenditureId).orElseThrow(
+                () -> new BusinessException(expenditureId, "expenditureId", ErrorCode.EXPENDITURE_NOT_FOUND)
         );
 
-        return category;
+        expenditure.update(reqDto.toEntity());
+
+        return expenditure.getId();
     }
 }
